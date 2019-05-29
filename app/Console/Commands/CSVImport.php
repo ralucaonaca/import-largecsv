@@ -46,11 +46,20 @@ class CSVImport extends Command
 
         $fileparts = pathinfo($file);
 
-        $csvFileImport = new CsvFileImport();
-        $csvFileImport->original_filename = $fileparts['basename'];
-        $csvFileImport->status = 'pending';
-        $csvFileImport->row_count = 0;
-        $csvFileImport->save();
+        $csvFileImport = CsvFileImport::where('original_filename', $fileparts['basename'])->first();
+
+        if ($csvFileImport->status === 'processed'){
+            echo 'The file was processed';
+            die;
+        }
+
+        if(!$csvFileImport) {
+            $csvFileImport = new CsvFileImport();
+            $csvFileImport->original_filename = $fileparts['basename'];
+            $csvFileImport->status = 'pending';
+            $csvFileImport->row_count = 0;
+            $csvFileImport->save();
+        }
 
         $csv_importer = new CsvFileImporter();
 
