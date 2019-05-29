@@ -18,10 +18,8 @@ class CsvFileImporter
      * @param Csv File
      * @return int number of lines imported
      */
-    public function import($file, $csvImportId)
+    public function import($fileName, $csvImportId)
     {
-        $fileName = $this->moveFile($file);
-
         $csvHeader =  ['code', 'name', 'description', 'stock', 'cost', 'discontinued'];
 
         // Import contents of the file into database

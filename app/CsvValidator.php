@@ -55,7 +55,12 @@ class CsvValidator
         // Line endings fix
         ini_set('auto_detect_line_endings', true);
 
-        $header = $this->manipulateHeader($file);
+        $fileResource = fopen($file, 'r');
+        if ( $fileResource === false) {
+            throw new Exception('File cannot be opened for reading');
+        }
+
+        $header = $this->manipulateHeader($fileResource);
         // Find code column
         $code_column = $this->getColumnNameByValue($header, 'code');
 
@@ -66,7 +71,7 @@ class CsvValidator
         $description_column = $this->getColumnNameByValue($header, 'description');
 
         // Get second row of the file as the first data row
-        $data_row = fgetcsv($file, 0, ',');
+        $data_row = fgetcsv($fileResource, 0, ',');
 
         // Combine header and first row data
         $first_row = array_combine($header, $data_row);
@@ -82,7 +87,7 @@ class CsvValidator
         $first_row_description = array_key_exists('description', $first_row)? $first_row['description'] : '';
 
         // Close file and free up memory
-        fclose($file);
+        fclose($fileResource);
 
         // Build our validation array
         $validation_array = [

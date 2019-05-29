@@ -46,29 +46,20 @@ class CSVImport extends Command
 
         $fileparts = pathinfo($file);
 
-        $csvFileImport = CsvFileImport::where('original_filename', $fileparts['basename'])->first();;
+        $csvFileImport = new CsvFileImport();
+        $csvFileImport->original_filename = $fileparts['basename'];
+        $csvFileImport->status = 'pending';
+        $csvFileImport->row_count = 0;
+        $csvFileImport->save();
 
-        if(!$csvFileImport) {
+        $csv_importer = new CsvFileImporter();
 
-            $csvFileImport = new CsvFileImport();
-            $csvFileImport->original_filename = $fileparts['basename'];
-            $csvFileImport->status = 'pending';
-            $csvFileImport->row_count = 0;
-            $csvFileImport->save();
-        }
-
-
-        $fileResouce = fopen($file, 'r');
-
-        if ($fileResouce === false) {
-            $this->info(' File cannot be opened for reading' . $file);
-        }
+        $csvFile = $csv_importer->moveFile($file);
 
         // Create validator object
         $validator = App::make('App\CsvValidator');
 
-        // Run validation with input file
-        $validator = $validator->validate($fileResouce, $fileparts['extension']);
+        $validator = $validator->validate($csvFile, $fileparts['extension']);
 
         if ($validator->fails()) {
 
@@ -79,10 +70,7 @@ class CSVImport extends Command
             }
         }
 
-        // Lets construct our importer
-        $csv_importer = new CsvFileImporter();
-
-        $csv_importer->import($file, $csvFileImport->id);
+        $csv_importer->import($csvFile, $csvFileImport->id);
 
         // we start processing
         $csvFileImportProcess = CsvFileImport::where('status', 'pending')

@@ -1,11 +1,3 @@
--- Create database
-
-CREATE DATABASE qubiz_test;
-
--- and use...
-
-USE qubiz_test;
-
 -- Create table for data
 CREATE TABLE product (
   id int(11) unsigned NOT NULL AUTO_INCREMENT,
